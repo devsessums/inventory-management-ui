@@ -1,26 +1,17 @@
 import * as React from 'react';
-import Navbar from "../components/navs/Navbar";
-import {useEffect, useMemo, useState} from "react";
 import {CircularProgress, Grid} from "@mui/material";
 import useWarehousesData from "../hooks/useWarehousesData";
-import axios from "axios";
 import {getUrl} from "../tools/utils";
 import WarehousesTable from "../components/tables/WarehousesTable";
 import NewWarehouseForm from "../components/forms/NewWarehouseForm";
-import {wait} from "@testing-library/user-event/dist/utils";
-
-const WarehousePage = () => {
-
-    const {data, error, loaded} = useWarehousesData(getUrl("/mock/warehouses"));
-
-    const {warehouses, setWarehouses} = useState(data);
 
 
+const WarehousesPage = () => {
 
+    const {data, error, loaded} = useWarehousesData(getUrl("/warehouses"));
 
     return (
-        <div>
-            <Navbar/>
+        <div className={"mt-5"}>
             <Grid container>
                 <Grid item xs={5}>
                     <NewWarehouseForm/>
@@ -29,7 +20,7 @@ const WarehousePage = () => {
                     {
                         loaded ?<div className={"text-center"}>
 
-                                    <WarehousesTable/>
+                                    <WarehousesTable warehouses={data}/>
                                 </div>
                                 :
                             <div className={"text-center"}>
@@ -43,4 +34,4 @@ const WarehousePage = () => {
     );
 }
 
-export default WarehousePage;
+export default WarehousesPage;

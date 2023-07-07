@@ -1,9 +1,9 @@
+import * as React from 'react';
 import {useEffect, useState} from "react";
 import axios from "axios";
 import {wait} from "@testing-library/user-event/dist/utils";
-import {getUrl} from "../tools/utils";
 
-function useWarehousesData(url) {
+function useGetWarehouseItems(url) {
     const [data, setData] = useState(null);
     const [error, setError] = useState("");
     const [loaded, setLoaded] = useState(false);
@@ -16,8 +16,9 @@ function useWarehousesData(url) {
                 const response = await fetch(url, {headers})
                     .then(res=> res.json())
                     .then(data => setData(data))
-                //setData(response.data);
-                setLoaded(true);
+                    .then(setLoaded(true))
+                    .catch(err => setError(err))
+
             } catch (error) {
                 setError(error.message);
             }
@@ -27,5 +28,4 @@ function useWarehousesData(url) {
     return { data, error, loaded };
 };
 
-
-export default useWarehousesData;
+export default useGetWarehouseItems;
