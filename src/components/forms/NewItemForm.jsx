@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useEffect, useState} from "react";
-import {Box, Button, FormGroup, Modal, Paper, TextField, Typography} from "@mui/material";
+import {Box, Button, FormGroup, Modal, Paper, Slide, TextField, Typography} from "@mui/material";
 import axios from "axios";
 import {getUrl} from "../../tools/utils";
 
@@ -30,6 +30,7 @@ const NewItemForm = (props) => {
 
         e.preventDefault();
         const response = await axios.post(getUrl(`/warehouses/warehouse/${props.warehouseId}/item`), {newItem})
+            .then(res => props.handleClose())
             .catch(err => console.log(err));
         console.log(response)
     };
@@ -72,7 +73,7 @@ const NewItemForm = (props) => {
                 <FormGroup onChange={handleChange}>
                     <div className={"row"}>
                         <div className={"col-6-lg"}>
-                            <TextField id={"name"} label={"Name"} variant={"filled"}/>
+                            <TextField id={"name"} label={"Name"} variant={"filled"} size={"small"}/>
                         </div>
                         <div className={"col-6-lg"}>
                             <TextField id={"sku"} label={"SKU"} variant={"filled"}/>

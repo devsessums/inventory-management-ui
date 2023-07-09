@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {useLocation, useNavigate} from "react-router-dom";
 import ItemsTable from "../components/tables/ItemsTable";
-import {Button, Paper, Typography} from "@mui/material";
+import {Button, Divider, Paper, Tooltip, Typography} from "@mui/material";
 import {useState} from "react";
 import NewItemForm from "../components/forms/NewItemForm";
 
@@ -15,6 +15,7 @@ const WarehousePage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     let warehouse = null;
+    let newItem = null;
 
     if (location.state && location.state.warehouse) {
         warehouse = location.state.warehouse;
@@ -62,9 +63,12 @@ const WarehousePage = () => {
                             <Typography variant={"h4"}>List of Products</Typography>
                         </div>
                         <div className={"col-6 text-end"}>
-                            <Button variant={"contained"} onClick={handleOpen}>Add New Product</Button>
+                            <Tooltip title={"Add new item to warehouse"}>
+                                <Button variant={"contained"} onClick={handleOpen}>Add New Product</Button>
+                            </Tooltip>
                             <NewItemForm warehouseId={warehouse.id} open={open} handleClose={handleClose} handleOpen={handleOpen}/>
                         </div>
+                        <Divider className={"mt-2"} sx={{backgroundColor:"black"}} light={false}/>
                     </div>
                 </div>
 

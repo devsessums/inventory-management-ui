@@ -1,13 +1,52 @@
 import * as React from 'react';
+import {Typography} from "@mui/material";
+import {useState} from "react";
+import Carousel from "../components/molecules/Carousel";
 
 
 const LandingPage = () => {
-
-    return (
-        <div>
-
+    const [user, setUser] = useState({name: "default user"});
+    return (<div class={"container-lg"} style={{"min-height": "848px"}}>
+        <div className={"row justify-content-center mt-3"}>
+            <Carousel/>
         </div>
-    );
+
+        <div className={"row text-center"}>
+            <Typography variant={"h3"}>Welcome {user.name}</Typography>
+            <div className="d-flex flex-column align-items-center justify-content-center w-100 mt-4">
+                <h4>Testimonials</h4>
+                <div className="row">
+                    <div className="col-md-4">
+                        <p className="text-center">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras fermentum sed velit at
+                            interdum.
+                            Pellentesque mattis fermentum viverra. Etiam interdum, risus eget porta iaculis, felis
+                            quam sagittis est, ac ornare
+                            ipsum nunc non massa. Donec dapibus sem non purus rutrum.
+                        </p>
+                    </div>
+                    <div className="col-md-4">
+                        <p className="text-center">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras fermentum sed velit at
+                            interdum.
+                            Pellentesque mattis fermentum viverra. Etiam interdum, risus eget porta iaculis, felis
+                            quam sagittis est, ac ornare
+                            ipsum nunc non massa. Donec dapibus sem non purus rutrum.
+                        </p>
+                    </div>
+                    <div className="col-md-4">
+                        <p className="text-center">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras fermentum sed velit at
+                            interdum.
+                            Pellentesque mattis fermentum viverra. Etiam interdum, risus eget porta iaculis, felis
+                            quam sagittis est, ac ornare
+                            ipsum nunc non massa. Donec dapibus sem non purus rutrum.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>);
 };
 
 

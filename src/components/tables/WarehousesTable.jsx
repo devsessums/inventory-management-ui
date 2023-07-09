@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useEffect, useState} from "react";
-import {Table, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
+import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 
 const WarehousesTable = (props) => {
@@ -42,14 +42,16 @@ const WarehousesTable = (props) => {
                                 <TableCell align={"left"}>Capacity</TableCell>
                             </TableRow>
                         </TableHead>
+                        <TableBody>
                         {warehouses.map((obj, i) => {
-                            return <TableRow key={obj.toString() + i.toString()} onClick={() => viewWarehouse(obj)}>
+                            return <TableRow hover={true} key={i.toString()} onClick={() => viewWarehouse(obj)}>
 
-                                <TableCell>{warehouses[i].company_name}</TableCell>
-                                <TableCell>{warehouses[i].size}</TableCell>
-                                <TableCell>{warehouses[i].capacity}</TableCell>
+                                <TableCell>{obj.company_name}</TableCell>
+                                <TableCell>{obj.size}</TableCell>
+                                <TableCell>{obj.capacity}</TableCell>
                             </TableRow>
                         })}
+                        </TableBody>
                     </Table>
                 </TableContainer>
 
