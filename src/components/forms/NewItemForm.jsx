@@ -8,7 +8,6 @@ const NewItemForm = (props) => {
 
     const newItem = {
         name: null,
-        sku: null,
         description: null,
         price: null,
         amount: null
@@ -29,10 +28,16 @@ const NewItemForm = (props) => {
         console.log("posting");
 
         e.preventDefault();
-        const response = await axios.post(getUrl(`/warehouses/warehouse/${props.warehouseId}/item`), {newItem})
+        fetch(getUrl(`/warehouses/warehouse/${props.warehouseId}/item`),
+             {
+                 headers: {'Content-Type': 'application/json'},
+                 method: 'POST',
+                 body: JSON.stringify(newItem)
+              }
+        )
+            .then(res => console.log(res))
             .then(res => props.handleClose())
             .catch(err => console.log(err));
-        console.log(response)
     };
 
     const handleChange = (e) => {
@@ -41,9 +46,6 @@ const NewItemForm = (props) => {
                 newItem.name = e.target.value
                 break;
 
-            case "sku":
-                newItem.sku = e.target.value
-                break;
 
             case "description":
                 newItem.description = e.target.value
@@ -63,7 +65,6 @@ const NewItemForm = (props) => {
     return (<>
         <Modal
             open={props.open}
-            aria-labelledBy="item-add-modal"
         >
             <Paper sx={style}>
                 <div className={"row text-center m-3"}>
@@ -71,21 +72,24 @@ const NewItemForm = (props) => {
                 </div>
 
                 <FormGroup onChange={handleChange}>
-                    <div className={"row"}>
+                    <div className={"row text-center"}>
                         <div className={"col-6-lg"}>
-                            <TextField id={"name"} label={"Name"} variant={"filled"} size={"small"}/>
-                        </div>
-                        <div className={"col-6-lg"}>
-                            <TextField id={"sku"} label={"SKU"} variant={"filled"}/>
+                            <TextField
+                                error
+                                id={"name"}
+                                label={"Name"}
+                                variant={"filled"}
+                                size={"small"}
+                            />
                         </div>
                     </div>
-                    <div className={"row"}>
+                    <div className={"row text-center"}>
                         <div className={"col-6-lg"}>
                             <TextField id={"description"} label={"Description"} variant={"filled"}/>
                         </div>
 
                     </div>
-                    <div className={"row"}>
+                    <div className={"row text-center"}>
                         <div className={"col-6-lg"}>
                             <TextField id={"price"} label={"Price"} variant={"filled"}/>
                         </div>
@@ -97,7 +101,7 @@ const NewItemForm = (props) => {
                 </FormGroup>
 
                 <div className={"row text-center mt-3"}>
-                    <div class={"col-lg-6"}>
+                    <div className={"col-lg-6"}>
                         <Button variant={"contained"} onClick={handleSubmit}>Add Item</Button>
                     </div>
                     <div className={"col-lg-6"}>

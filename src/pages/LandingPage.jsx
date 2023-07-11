@@ -6,13 +6,15 @@ import Carousel from "../components/molecules/Carousel";
 
 const LandingPage = () => {
     const [user, setUser] = useState({name: "default user"});
-    return (<div class={"container-lg"} style={{"min-height": "848px"}}>
-        <div className={"row justify-content-center mt-3"}>
+    return (<div className={"container-lg"} style={{"min-height": "848px"}}>
+
+        <div className={"row justify-content-center mt-3 text-center"}>
+            <Typography variant={"h3"}>Welcome {user.name}</Typography>
             <Carousel/>
         </div>
 
         <div className={"row text-center"}>
-            <Typography variant={"h3"}>Welcome {user.name}</Typography>
+
             <div className="d-flex flex-column align-items-center justify-content-center w-100 mt-4">
                 <h4>Testimonials</h4>
                 <div className="row">

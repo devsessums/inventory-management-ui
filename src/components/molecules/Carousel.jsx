@@ -12,15 +12,15 @@ const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const images = [
     {
-        label: 'Warehouse 1',
+        label: '',
         imgPath: Warehouse1
     },
     {
-        label: 'Warehouse 2',
+        label: '',
         imgPath: Warehouse2
     },
     {
-        label: 'Warehouse 3',
+        label: '',
         imgPath: Warehouse3
     },
 

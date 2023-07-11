@@ -16,7 +16,7 @@ function useWarehousesData(url) {
                 const response = await fetch(url, {headers})
                     .then(res=> res.json())
                     .then(data => setData(data))
-                //setData(response.data);
+
                 setLoaded(true);
             } catch (error) {
                 setError(error.message);

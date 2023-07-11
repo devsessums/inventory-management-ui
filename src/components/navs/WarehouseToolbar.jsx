@@ -1,56 +1,51 @@
 import * as React from 'react';
 import {useState} from "react";
-import {AppBar, Box, Button, IconButton, Toolbar, Typography} from "@mui/material";
+import {AppBar, Box, Button, createTheme, IconButton, ThemeProvider, Toolbar, Tooltip, Typography} from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import {useNavigate} from "react-router-dom";
 import {orange} from "@mui/material/colors";
 
 
+const darkTheme = createTheme({
+    palette: {
+        mode: 'dark',
+        primary: {
+            main: '#F78F1F',
+        },
+    },
+});
+
 const WarehouseToolbar = () => {
     const navigate = useNavigate();
 
     return (<Box sx={{flexGrow: 1}}>
-        <AppBar position="static">
+        <ThemeProvider theme={darkTheme}>
+        <AppBar position="static" enableColorOnDark>
             <Toolbar>
                 <div className={"row justify-content-evenly"}>
                     <div className={"col-lg-3"}>
-                        <IconButton
-                            size="large"
-                            edge="start"
-                            color="inherit"
-                            aria-label="menu"
-                            sx={{mr: 2}}
-                        >
-                            <MenuIcon/>
-                        </IconButton>
-                    </div>
-                    <div className={"col-lg-3"}>
-                        <Button variant={"outline"}>
-                            <Typography variant="h6" component="div" onClick={() => navigate("/")}>
-                                Home
-                            </Typography>
-                        </Button>
+                        <Tooltip title={"Go to the home page"} arrow>
+                            <Button variant={"outline"}>
+                                <Typography variant="h6" component="div" onClick={() => navigate("/")}>
+                                    Home
+                                </Typography>
+                            </Button>
+                        </Tooltip>
                     </div>
 
                     <div className={"col-lg-3"}>
-                        <Button variant={"outline"}>
-                            <Typography variant="h6" component="div" onClick={() => navigate("/warehouses")}>
-                                Warehouses
-                            </Typography>
-                        </Button>
+                        <Tooltip title={"Go to managed warehouses"} arrow>
+                            <Button variant={"outline"}>
+                                <Typography variant="h6" component="div" onClick={() => navigate("/warehouses")}>
+                                    Warehouses
+                                </Typography>
+                            </Button>
+                        </Tooltip>
                     </div>
-
-
-                    {/*<div className={"col-lg-3"}>*/}
-                    {/*    <Button variant={"outline"}>*/}
-                    {/*        <Typography variant="h6" component="div">*/}
-                    {/*            Login*/}
-                    {/*        </Typography>*/}
-                    {/*    </Button>*/}
-                    {/*</div>*/}
                 </div>
             </Toolbar>
         </AppBar>
+        </ThemeProvider>
     </Box>);
 }
 

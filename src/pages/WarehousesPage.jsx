@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Alert, Button, CircularProgress, Divider, Grid, Paper, Snackbar, Typography} from "@mui/material";
+import {Alert, Button, CircularProgress, Divider, Grid, Paper, Snackbar, Tooltip, Typography} from "@mui/material";
 import useWarehousesData from "../hooks/useWarehousesData";
 import {getUrl} from "../tools/utils";
 import WarehousesTable from "../components/tables/WarehousesTable";
@@ -24,7 +24,7 @@ const WarehousesPage = () => {
     const handleSnackClose = () => setSnack(false)
 
     const handleSnackMessage = (message) => {
-        if(message.status !== 201) {
+        if (message?.status !== 201) {
             setSeverity("error");
         } else {
             setSeverity("success");
@@ -32,7 +32,6 @@ const WarehousesPage = () => {
 
         setSnackMessage(message.response.data);
     };
-
 
 
     return (
@@ -53,13 +52,24 @@ const WarehousesPage = () => {
                         </Typography>
                     </div>
                     <div className={"col-6 text-end mt-2"}>
-                        <Button variant={"contained"} onClick={handleOpen}>
-                            <Typography>
-                                Add New Warehouse
-                            </Typography>
-
-                        </Button>
-                        <NewWarehouseForm open={open} handleClose={handleClose} handleSnackMessage={handleSnackMessage} handleSnackOpen={handleSnackOpen}/>
+                        <Tooltip title={"Click to add a warehouse"} arrow>
+                            <Button variant={"contained"}
+                                    onClick={handleOpen}
+                                    sx={{
+                                        backgroundColor: '#F78F1F',
+                                        color: 'black',
+                                        ":hover": {bgcolor: '#F78F2F', color: 'black'}
+                                    }}>
+                                <Typography>
+                                    Add New Warehouse
+                                </Typography>
+                            </Button>
+                        </Tooltip>
+                        <NewWarehouseForm open={open}
+                                          handleClose={handleClose}
+                                          handleSnackMessage={handleSnackMessage}
+                                          handleSnackOpen={handleSnackOpen}
+                        />
 
                     </div>
 
@@ -68,9 +78,6 @@ const WarehousesPage = () => {
             </div>
             <Divider sx={{backgroundColor: "black"}}/>
             <Grid container>
-                {/*<Grid item xs={5}>
-                    <NewWarehouseForm/>
-                </Grid>*/}
                 <Grid item xs={12}>
                     {loaded ? <div className={"text-center"}>
                         <Paper className={"mt-5"}>
