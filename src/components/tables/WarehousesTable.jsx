@@ -4,6 +4,7 @@ import {IconButton, Table, TableBody, TableCell, TableContainer, TableHead, Tabl
 import {useNavigate} from "react-router-dom";
 import {getUrl} from "../../tools/utils";
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import {wait} from "@testing-library/user-event/dist/utils";
 
 
 const WarehousesTable = (props) => {
@@ -18,22 +19,36 @@ const WarehousesTable = (props) => {
     }
 
     useEffect(() => {
-        if (data) {
-            setWarehouses(data);
-        }
-    }, [data])
+        setWarehouses(props.warehouses);
+    }, [props.added, props.deleted])
 
     const handleDelete = (row) => {
-        fetch(getUrl(`/warehouse/${row.id}`), {
-            method: 'DELETE'
+        console.log(row);
+        fetch(getUrl(`/warehouses/warehouse/${row.id}`), {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
         })
-            .then(res => console.log(res))
+            .then(
+                res => {
+                    if(res.status === 204) {
+                        props.handleDeleted()
+                    } else if (res.status === 400) {
+
+                    } else {
+
+                    }
+                }
+            )
             .catch(err => console.log(err));
     }
 
 
     return (<div>
-        {warehouses ? <TableContainer>
+        {warehouses ?
+            warehouses.length !== 0 ?
+            <TableContainer>
                 <Table sx={{minWidth: "100%"}} aria-label={"warehouse table"}>
                     <TableHead>
                         <TableRow>
@@ -50,13 +65,15 @@ const WarehousesTable = (props) => {
                                     <TableCell onClick={() => viewWarehouse(obj)}>{obj.companyName}</TableCell>
                                     <TableCell onClick={() => viewWarehouse(obj)}>{obj.size}</TableCell>
                                     <TableCell onClick={() => viewWarehouse(obj)}>{obj.capacity}</TableCell>
-                                    <TableCell><IconButton onClick={handleDelete}><DeleteForeverOutlinedIcon></DeleteForeverOutlinedIcon></IconButton></TableCell>
+                                    <TableCell><IconButton onClick={() => handleDelete(obj)}><DeleteForeverOutlinedIcon></DeleteForeverOutlinedIcon></IconButton></TableCell>
                                 </TableRow>
                             </Tooltip>
                         })}
                     </TableBody>
                 </Table>
             </TableContainer>
+
+        : <div>There is no data yet</div>
 
 
             : <div> Data not loaded</div>}

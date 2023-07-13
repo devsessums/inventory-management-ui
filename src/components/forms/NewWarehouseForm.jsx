@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Button, Modal, Paper, TextField} from "@mui/material";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import usePostWarehousesData from "../../hooks/usePostWarehouseData";
 import {getUrl} from "../../tools/utils";
 import axios from "axios";
@@ -16,6 +16,15 @@ const NewWarehouseForm = (props) => {
         zipcode: {text: '', error: false}
     });
 
+    const [nameErrors, setNameErrors] = useState({text: '', error: true})
+    const [capacityErrors, setCapacityErrors] = useState({text: '', error: true})
+    const [addressErrors, setAddressErrors] = useState({text: '', error: true})
+    const [cityErrors, setCityErrors] = useState({text: '', error: true})
+    const [stateErrors, setStateErrors] = useState({text: '', error: true})
+    const [zipcodeErrors, setZipcodeErrors] = useState({text: '', error: true})
+
+    const [valid, setValid] = useState(true);
+
     const [companyName, setCompanyName] = useState('');
     const [capacity, setCapacity] = useState('');
     const [address, setAddress] = useState('');
@@ -23,12 +32,15 @@ const NewWarehouseForm = (props) => {
     const [state, setState] = useState('');
     const [zipcode, setZipcode] = useState('');
 
-    const [valid, setValid] = useState(false);
+    const [addedWarehouse, setAddedWarehouse] = useState(null);
 
-    // const payload = {
-    //     "companyName": '', capacity: '', address: '', city: '', state: '', zipcode: ''
-    // };
-
+    useEffect(()=> {
+        if (!zipcodeErrors.error && !nameErrors.error && !cityErrors.error && !addressErrors.error && !stateErrors.error && !capacityErrors.error) {
+            setValid(true);
+        } else {
+            setValid(false);
+        }
+    }, [companyName, capacity, address, city, state, zipcode])
 
     const style = {
         position: 'absolute',
@@ -42,92 +54,115 @@ const NewWarehouseForm = (props) => {
     };
 
     const handleChange = (e) => {
-
-        switch (e.target.id) {
+        let id = e.target.id;
+        let value = e.target.value.replaceAll(' ', '');
+        switch (id) {
             case "name":
-                if (e.target.value.length === 0) {
-                    errors.name.text = "Must enter a name";
-                    errors.name.error = true;
+                setCompanyName(value);
+                if (value.length === 0) {
+                    setNameErrors({
+                        text: "Must enter a name", error: true
+                    });
                 } else {
-                    setCompanyName(e.target.value);
-                    errors.name.text = "";
-                    errors.name.error = false;
+                    setNameErrors({
+                        text: "", error: false
+                    });
                 }
                 break;
 
             case "capacity":
-                if (e.target.value.length === 0) {
-                    errors.capacity.text = "Must enter a number";
-                    errors.capacity.error = true;
-
+                setCapacity(value);
+                if (value.length === 0) {
+                    setCapacityErrors({
+                        text: "Must enter a number", error: true
+                    });
                 } else {
-                    if (parseInt(e.target.value) > 0) {
-                        setCapacity(parseInt(e.target.value));
-                        errors.capacity.text = "";
-                        errors.capacity.error = false;
+                    if (parseInt(value) >= 20) {
+                        setCapacityErrors({
+                            text: "", error: false
+                        });
+                    } else if (parseInt(value) < 20) {
+                        setCapacityErrors({
+                            text: "Must enter a number greater than 20", error: true
+                        });
                     } else {
-                        errors.capacity.text = "Must enter a positive number";
-                        errors.capacity.error = true;
+                        setCapacityErrors({
+                            text: "Must enter a positive number", error: true
+                        });
                     }
                 }
                 break;
 
             case "address":
-                if (e.target.value.length === 0) {
-                    errors.address.text = "Must enter an address";
-                    errors.address.error = true;
+                setAddress(value);
+                if (value.length === 0) {
+                    setAddressErrors({
+                        text: "Must enter an address", error: true
+                    });
                 } else {
-                    setAddress(e.target.value);
-                    errors.address.text = "";
-                    errors.address.error = false;
+                    setAddressErrors({
+                        text: "", error: false
+                    });
                 }
                 break;
 
             case "city":
-                if (e.target.value.length === 0) {
-                    errors.city.text = "Must enter a city";
-                    errors.city.error = true;
+                setCity(value);
+                if (value.length === 0) {
+                    setCityErrors({
+                        text: "Must enter a city", error: true
+                    });
                 } else {
-                    setCity(e.target.value);
-                    errors.city.text = "";
-                    errors.city.error = false;
+                    setCityErrors({
+                        text: "", error: false
+                    });
                 }
                 break;
 
             case "state":
-                if (e.target.value.length === 0) {
-                    errors.state.text = "Must enter a state";
-                    errors.state.error = true;
+                setState(value);
+                if (value.length === 0) {
+                    setStateErrors({
+                        text: "Must enter a state", error: true
+                    });
                 } else {
-                    setState(e.target.value);
-                    errors.state.text = "";
-                    errors.state.error = false;
+
+                    setStateErrors({
+                        text: "", error: false
+                    });
                 }
                 break;
 
             case "zipcode":
-                if (e.target.value.length !== 5) {
-                    errors.zipcode.text = "Must enter a five digit zipcode";
-                    errors.zipcode.error = true;
+                setZipcode(value);
+                if (value.length === 5) {
+                    setZipcodeErrors({
+                        text: "", error: false
+                    });
                 } else {
-                    setZipcode(e.target.value);
-                    errors.zipcode.text = "";
-                    errors.zipcode.error = false;
+                    setZipcodeErrors({
+                        text: "Must enter a five digit zipcode", error: true
+                    });
                 }
                 break;
-        }
-        if(!errors.name.error && !errors.city.error &&
-           !errors.address.error && !errors.state.error &&
-           !errors.zipcode.error && !errors.capacity.error) {
-            setValid(true);
         }
     }
 
     // clearing all form errors on modal cancel
     const handleCancel = (e) => {
-        for (let attr in errors) {
-            errors[attr] = {text: '', error: false}
-        }
+        setNameErrors({text: '', error: true});
+        setCapacityErrors({text: '', error: true});
+        setAddressErrors({text: '', error: true});
+        setCityErrors({text: '', error: true});
+        setStateErrors({text: '', error: true});
+        setZipcodeErrors({text: '', error: true})
+        setCompanyName('');
+        setCapacity('');
+        setAddress('');
+        setCity('');
+        setState('');
+        setZipcode('');
+        setValid(false);
         props.handleClose()
     }
 
@@ -148,31 +183,49 @@ const NewWarehouseForm = (props) => {
                 }, method: "POST", body: JSON.stringify(payload)
             })
                 .then(res => {
+                        console.log(res);
                     if (res.status === 201) {
+
                         props.handleSnackMessage({
                             response: {
                                 data: "Warehouse added"
                             },
                             status: 201
                         });
+                        props.handleClose();
+                        //return res.json();
                     } else if (res.status === 406) {
+                        console.log("here foo")
                         props.handleSnackMessage({
                             response: {
-                                data: `HTTP status ${res.status}`
-                            }
+                                data: res.body
+                            },
+                            status: 406
                         });
                     }
                     else {
+                        console.log("nah I'm here")
                         props.handleSnackMessage({
                             response: {
                                 data: `HTTP status ${res.status}`
                             }
                         });
                     }
-                    props.handleSnackOpen(true);
+                    //props.handleSnackOpen(true);
+
+                })
+                .then(data => {
+                    console.log(data);
+                    setAddedWarehouse(data)
+                    props.added()
                 })
                 .catch(err => {
-                    props.handleSnackMessage(err);
+                    console.log(err)
+                    props.handleSnackMessage({
+                        response: {
+                            data: ""
+                        }
+                    });
                     props.handleSnackOpen(true);
                 });
         } else {
@@ -194,8 +247,8 @@ const NewWarehouseForm = (props) => {
                 <div className={"row mb-3"}>
                     <TextField
                         required
-                        helperText={errors.name.text}
-                        error={errors.name.error}
+                        helperText={nameErrors.text}
+                        error={nameErrors.error}
                         id={"name"}
                         label={"Company Name"}
                         variant={"outlined"}
@@ -204,8 +257,8 @@ const NewWarehouseForm = (props) => {
                 <div className={"row mb-3"}>
                     <TextField
                         required
-                        helperText={errors.capacity.text}
-                        error={errors.capacity.error}
+                        helperText={capacityErrors.text}
+                        error={capacityErrors.error}
                         id={"capacity"}
                         label={"Capacity"}
                         variant={"outlined"}
@@ -214,8 +267,8 @@ const NewWarehouseForm = (props) => {
                 <div className={"row mb-3"}>
                     <TextField
                         required
-                        helperText={errors.address.text}
-                        error={errors.address.error}
+                        helperText={addressErrors.text}
+                        error={addressErrors.error}
                         id={"address"}
                         label={"Address"}
                         variant={"outlined"}
@@ -224,8 +277,8 @@ const NewWarehouseForm = (props) => {
                 <div className={"row mb-3"}>
                     <TextField
                         required
-                        helperText={errors.city.text}
-                        error={errors.city.error}
+                        helperText={cityErrors.text}
+                        error={cityErrors.error}
                         id={"city"}
                         label={"City"}
                         variant={"outlined"}
@@ -234,8 +287,8 @@ const NewWarehouseForm = (props) => {
                 <div className={"row mb-3"}>
                     <TextField
                         required
-                        helperText={errors.state.text}
-                        error={errors.state.error}
+                        helperText={stateErrors.text}
+                        error={stateErrors.error}
                         id={"state"}
                         label={"State"}
                         variant={"outlined"}
@@ -244,8 +297,8 @@ const NewWarehouseForm = (props) => {
                 <div className={"row mb-3"}>
                     <TextField
                         required
-                        helperText={errors.zipcode.text}
-                        error={errors.zipcode.error}
+                        helperText={zipcodeErrors.text}
+                        error={zipcodeErrors.error}
                         id={"zipcode"}
                         label={"Zipcode"}
                         variant={"outlined"}
@@ -254,7 +307,7 @@ const NewWarehouseForm = (props) => {
                 </div>
                 <div className={"row mt-3"}>
                     <div className={"col-lg-6"}>
-                        <Button type={"submit"} onClick={handleSubmit} variant={"contained"} >Add</Button>
+                        <Button type={"submit"} onClick={handleSubmit} variant={"contained"} disabled={!valid} >Add</Button>
                     </div>
 
                     <div className={"col-lg-6"}>

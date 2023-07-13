@@ -6,11 +6,42 @@ import {getUrl} from "../../tools/utils";
 
 const NewItemForm = (props) => {
 
-    const newItem = {
-        name: null,
-        description: null,
-        price: null,
-        amount: null
+    // new item values from form
+    const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
+    const [price, setPrice] = useState('');
+    const [amount, setAmount] = useState('');
+
+    // handles validation error messages
+    const [nameErrors, setNameErrors] = useState({text: '', error: true});
+    const [descriptionErrors, setDescriptionErrors] = useState({text: '', error: true});
+    const [priceErrors, setPriceErrors] = useState({text: '', error: true});
+    const [amountErrors, setAmountErrors] = useState({text: '', error: true});
+
+    // if new item form is valid, by default form is not submittable
+    const [valid, setValid] = useState(false);
+
+    // handles form validation from item properties
+    useEffect(() => {
+        console.log("here")
+        if(!nameErrors.error && !descriptionErrors.error && !priceErrors.error && !amountErrors.error) {
+            setValid(true);
+        } else {
+            setValid(false);
+        }
+    }, [name, description, price, amount])
+
+    const handleCancel = () => {
+        setNameErrors({text: '', error: true});
+        setDescriptionErrors({text: '', error: true});
+        setPriceErrors({text: '', error: true});
+        setAmountErrors({text: '', error: true});
+        setName('');
+        setDescription('');
+        setPrice('');
+        setAmount('');
+        setValid(false);
+        props.handleClose()
     }
 
     const style = {
@@ -25,41 +56,140 @@ const NewItemForm = (props) => {
     };
 
     const handleSubmit = async (e) => {
-        console.log("posting");
-
         e.preventDefault();
-        fetch(getUrl(`/warehouses/warehouse/${props.warehouseId}/item`),
-             {
-                 headers: {'Content-Type': 'application/json'},
-                 method: 'POST',
-                 body: JSON.stringify(newItem)
-              }
-        )
-            .then(res => console.log(res))
-            .then(res => props.handleClose())
-            .catch(err => console.log(err));
+        if(valid) {
+            const newItem = {
+                name: name, description: description, price: price, amount: amount
+            }
+            console.log(newItem);
+            console.log()
+            fetch(getUrl(`/warehouses/warehouse/${props.warehouse.id}/item`), {
+                headers: {'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify(newItem)
+            })
+                .then(res => {
+                    if(res.status === 202) {
+                        return res.json();
+                    } else {
+                        //throw new Error("Item add unsuccessful");
+                        return {
+                            response: {
+                                data: "Item add unsuccessful",
+                            },
+                            status: res.status
+                        };
+                    }
+
+                })
+                .then(body => {
+                    if(body?.id) {
+                        props.push(body);
+                    } else {
+                        props.handleClose();
+                    }
+                })
+                .catch(props.handleClose());
+        } else {
+            console.log("form is not valid");
+        }
     };
 
     const handleChange = (e) => {
-        switch (e.target.id) {
+        let id = e.target.id;
+        let value = e.target.value.replaceAll(" ", '');
+        console.log(value)
+        switch (id) {
             case "name":
-                newItem.name = e.target.value
+                setName(value);
+                if(value.length !== 0) {
+                    setNameErrors({
+                        text: '',
+                        error: false
+                    });
+                } else {
+                    setNameErrors({
+                       text: "Must enter a name",
+                       error: true
+                    });
+                }
                 break;
 
 
             case "description":
-                newItem.description = e.target.value
+                setDescription(value);
+                if(value.length !== 0) {
+                    setDescriptionErrors({
+                        text: '',
+                        error: false
+                    });
+                } else {
+                    setDescriptionErrors({
+                        text: "Must enter a description",
+                        error: true
+                    });
+                }
                 break;
 
             case "price":
-                newItem.price = e.target.value
+                setPrice(value);
+                if(value.length !== 0) {
+                    if(parseFloat(value)  <= 0 ) {
+                        setPriceErrors({
+                            text: 'Enter a number greater than 0',
+                            error: true
+                        });
+                    } else if(parseFloat(value) > 0) {
+                        setPriceErrors({
+                            text: '',
+                            error: false
+                        });
+                    }   else {
+                        setPriceErrors({
+                            text: 'Must enter a number',
+                            error: true
+                        });
+                    }
+                } else {
+
+                    setPriceErrors({
+                        text: "Must enter a number",
+                        error: true
+                    });
+                }
                 break;
 
             case "amount":
-                newItem.amount = e.target.value
+                setAmount(value);
+                if(value.length !== 0) {
+                    if(parseInt(value) <= 0) {
+                        setAmountErrors({
+                            text: 'Enter a number greater than 0',
+                            error: true
+                        });
+                    } else if(parseInt(value) > 0) {
+                        if(props.warehouse.size + parseInt(value) > props.warehouse.capacity) {
+                            setAmountErrors({
+                                text: 'Exceeds capacity',
+                                error: true
+                            });
+                        } else {
+                            setAmountErrors({
+                                text: '', error: false
+                            });
+                        }
+                    } else {
+                        setAmountErrors({
+                            text: 'Enter a number',
+                            error: true
+                        });
+                    }
+                } else {
+                    setAmountErrors({
+                        text: 'Enter a number',
+                        error: true
+                    });
+                }
                 break;
         }
-        console.log(newItem);
     }
 
     return (<>
@@ -75,7 +205,9 @@ const NewItemForm = (props) => {
                     <div className={"row text-center"}>
                         <div className={"col-6-lg"}>
                             <TextField
-                                error
+                                required
+                                error={nameErrors.error}
+                                helperText={nameErrors.text}
                                 id={"name"}
                                 label={"Name"}
                                 variant={"filled"}
@@ -85,16 +217,34 @@ const NewItemForm = (props) => {
                     </div>
                     <div className={"row text-center"}>
                         <div className={"col-6-lg"}>
-                            <TextField id={"description"} label={"Description"} variant={"filled"}/>
+                            <TextField
+                                required
+                                error={descriptionErrors.error}
+                                helperText={descriptionErrors.text}
+                                id={"description"}
+                                label={"Description"}
+                                variant={"filled"}/>
                         </div>
 
                     </div>
                     <div className={"row text-center"}>
                         <div className={"col-6-lg"}>
-                            <TextField id={"price"} label={"Price"} variant={"filled"}/>
+                            <TextField
+                                required
+                                error={priceErrors.error}
+                                helperText={priceErrors.text}
+                                id={"price"}
+                                label={"Price"}
+                                variant={"filled"}/>
                         </div>
                         <div className={"col-6-lg"}>
-                            <TextField id={"amount"} label={"Amount"} variant={"filled"}/>
+                            <TextField
+                                required
+                                error={amountErrors.error}
+                                helperText={amountErrors.text}
+                                id={"amount"}
+                                label={"Amount"}
+                                variant={"filled"}/>
                         </div>
                     </div>
 
@@ -102,10 +252,10 @@ const NewItemForm = (props) => {
 
                 <div className={"row text-center mt-3"}>
                     <div className={"col-lg-6"}>
-                        <Button variant={"contained"} onClick={handleSubmit}>Add Item</Button>
+                        <Button variant={"contained"} onClick={handleSubmit} disabled={!valid}>Add Item</Button>
                     </div>
                     <div className={"col-lg-6"}>
-                        <Button color={"error"} variant={"contained"} onClick={props.handleClose}>Cancel</Button>
+                        <Button color={"error"} variant={"contained"} onClick={handleCancel}>Cancel</Button>
                     </div>
                 </div>
 

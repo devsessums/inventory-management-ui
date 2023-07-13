@@ -7,9 +7,9 @@ import {getUrl} from "../../tools/utils";
 import {useState, useEffect} from "react";
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 import DeleteItemModal from "../modals/DeleteItemModal";
+import EditItemForm from "../forms/EditItemForm";
 
 const ItemsTable = (props) => {
-
     const {data, error, loaded} = useGetWarehouseItems(getUrl(`/warehouses/warehouse/${props.warehouse.id}/items`));
     const [items, setItems] = useState([])
 
@@ -17,6 +17,9 @@ const ItemsTable = (props) => {
     const handleDeleteModalOpen = () => setDeleteModalOpen(true);
     const handleDeleteModalClose = () => setDeleteModalOpen(false);
 
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const handleEditModalOpen = () => setEditModalOpen(true);
+    const handleEditModalClose = () => setEditModalOpen(false);
 
     useEffect(() => {
         if (data) {
@@ -50,6 +53,7 @@ const ItemsTable = (props) => {
     return (<>
         {loaded ? <TableContainer>
             <Table>
+
                 <TableHead>
                     <TableRow key={"Header"}>
                         <TableCell align={"center"}>Name</TableCell>
@@ -63,17 +67,17 @@ const ItemsTable = (props) => {
                     {items.map((obj, i) => {
                         return <TableRow hover={true} key={i.toString()}>
                             <Tooltip title={"Click to edit"} arrow>
-                                <TableCell key={`${obj.name}+${i}`} align={"center"}>{obj.name}</TableCell>
+                                <TableCell key={`${obj.name}+${i}`} align={"center"} onClick={handleEditModalOpen} >{obj.name}</TableCell>
                             </Tooltip>
                             <Tooltip title={"Click to edit"} arrow>
                                 <TableCell key={`${obj.description}+${i}`}
-                                           align={"center"}>{obj.description}</TableCell>
+                                           align={"center"} onClick={handleEditModalOpen} >{obj.description}</TableCell>
                             </Tooltip>
                             <Tooltip title={"Click to edit"} arrow>
-                                <TableCell key={`${obj.price}+${i}`} align={"center"}>{obj.price}</TableCell>
+                                <TableCell key={`${obj.price}+${i}`} align={"center"} onClick={handleEditModalOpen}>{obj.price}</TableCell>
                             </Tooltip>
                             <Tooltip title={"Click to edit"} arrow>
-                                <TableCell key={`${obj.amount}+${i}`} align={"center"}>{obj.amount}</TableCell>
+                                <TableCell key={`${obj.amount}+${i}`} align={"center"} onClick={handleEditModalOpen}>{obj.amount}</TableCell>
                             </Tooltip>
 
                             <Tooltip title={"Click to delete"} arrow>
@@ -81,7 +85,14 @@ const ItemsTable = (props) => {
                                     <IconButton onClick={handleDeleteModalOpen}><DeleteForeverOutlinedIcon></DeleteForeverOutlinedIcon></IconButton>
                                 </TableCell>
                             </Tooltip>
+                            <EditItemForm
+                                open={editModalOpen}
+                                close={handleEditModalClose}
+                                warehouse={props.warehouse}
+                                item={obj}
+                            />
                             <DeleteItemModal open={deleteModalOpen} cancel={handleDeleteModalClose}/>
+
                         </TableRow>
 
                     })}

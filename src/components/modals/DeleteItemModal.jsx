@@ -22,9 +22,7 @@ const DeleteItemModal = (props) => {
         >
             <Paper sx={style}>
                 <div className={"row text-center"}>
-                    <Typography>
                     <h3>Are you sure you want to delete this item?</h3>
-                    </Typography>
                 </div>
                 <div className={"row mt-4 text-center"}>
                     <div className={"col-6"}>
