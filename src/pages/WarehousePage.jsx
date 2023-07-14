@@ -31,15 +31,37 @@ const WarehousePage = () => {
 
     const {state} = useLocation();
     const [warehouse, setWarehouse] = useState(state.warehouse)
+    const handleEditTrue = state.handleEditedTrue
+
+    const [isAddItem, setIsAddItem] = useState(false);
+    const handleAddTrue = () => setIsAddItem(true);
+    const handleAddFalse = () => setIsAddItem(false);
+    const [isDeleteItem, setIsDeleteItem] = useState(false);
+
+    const [itemIndex, setItemIndex] = useState(null);
+    const handleDeleteTrue = () => setIsDeleteItem(true);
+    const handleDeleteFalse = () => setIsDeleteItem(false);
     const [items, setItems] = useState(warehouse.items);
+    const [newItem, setNewItem] = useState(null);
+
+    const [isEditItem, setIsEditItem] = useState(false);
+    const [editItem, setEditItem] = useState(null);
+
+    const handleNewItem = (item) => {setNewItem(item)};
+
 
     const handleAdd = (item) => {
-        setItems([...items, item]);
+        console.log("item to add", item)
+        setItems([...items, newItem]);
+        setWarehouse({...warehouse, size: warehouse.size + items.length, items: items});
+        //props.setWarehouse({...warehouse})
+        handleUpdate(warehouse);
     }
 
     const handleUpdate = (w) => {
+        console.log(w);
         navigate(`/warehouse`, {state: {warehouse: w}});
-        setWarehouse(w);
+        setWarehouse({...w});
     }
 
     // sets the snack message severity property
@@ -53,6 +75,43 @@ const WarehousePage = () => {
         // set the snack message and just in case of bad response to use a default value
         setSnackMessage(message?.response?.data ?? "Something has happened");
     };
+
+    useEffect(() => {
+        fetch(getUrl(`/warehouses/warehouse/${warehouse.id}`),
+            {method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }})
+            .then(res => res.json())
+            .then(data => {
+                setWarehouse({...data});
+                handleUpdate(data);
+                console.log(data);
+            })
+            .catch(err => console.error(err));
+    }, [isAddItem, isDeleteItem])
+
+
+
+    useEffect(() => {
+        if(isAddItem) {
+            console.log("adding items");
+            console.log("this is new item", newItem)
+            setItems([...items, newItem])
+            setWarehouse({...warehouse, items: items})
+            setIsAddItem(false);
+        } else if(isDeleteItem) {
+            console.log("deleting items")
+            items.splice(itemIndex, 1);
+            setItems(items);
+            setWarehouse({...warehouse, items: items})
+            console.log(warehouse)
+            setIsDeleteItem(false);
+        } else if(isEditItem) {
+
+        }
+
+    }, [isAddItem, isDeleteItem, isEditItem])
 
 
     return (<div>
@@ -118,11 +177,16 @@ const WarehousePage = () => {
                             <Tooltip title={"Add new item to warehouse"} arrow>
                                 <Button variant={"contained"} onClick={handleOpen}>Add New Product</Button>
                             </Tooltip>
-                            <NewItemForm warehouse={warehouse}
-                                         open={open}
-                                         handleClose={handleClose}
-                                         handleOpen={handleOpen}
-                                         push={handleAdd}
+                            <NewItemForm
+                                open={open}
+                                warehouse={warehouse}
+                                setWarehouse={setWarehouse}
+                                handleClose={handleClose}
+                                handleSnackMessage={handleSnackMessage}
+                                handleSnackOpen={handleSnackOpen}
+                                added={handleAddTrue}
+                                addItem={handleAdd}
+                                setNewItem={setNewItem}
                             />
                         </div>
                         <Divider className={"mt-2"} sx={{backgroundColor:"black"}} light={false}/>
@@ -130,7 +194,7 @@ const WarehousePage = () => {
                 </div>
 
 
-                <ItemsTable warehouse={warehouse}/>
+                <ItemsTable warehouse={warehouse} setWarehouse={setWarehouse} isAdded={isAddItem}/>
             </Paper>
         </div>
 

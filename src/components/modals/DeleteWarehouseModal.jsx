@@ -1,9 +1,9 @@
 import * as React from 'react';
-import {Button, Modal, Paper, Typography} from "@mui/material";
+import {Button, Modal, Paper} from "@mui/material";
+import {getUrl} from "../../tools/utils";
 
 
-
-const DeleteItemModal = (props) => {
+const DeleteWarehouseModal = (props) => {
 
     const style = {
         position: 'absolute',
@@ -16,6 +16,24 @@ const DeleteItemModal = (props) => {
         p: 4,
     };
 
+    const handleDelete = (row, i) => {
+        console.log(row);
+        fetch(getUrl(`/warehouses/warehouse/${row.id}`), {
+            method: 'DELETE', headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => {
+                if (res.status === 204) {
+                    props.handleDeleted()
+                } else if (res.status === 400) {
+
+                } else {
+
+                }
+            })
+            .catch(err => console.log(err));
+    }
 
     return (
         <Modal
@@ -23,7 +41,7 @@ const DeleteItemModal = (props) => {
         >
             <Paper sx={style}>
                 <div className={"row text-center"}>
-                    <h3>Are you sure you want to delete this item?</h3>
+                    <h3>Are you sure you want to delete this warehouse?</h3>
                 </div>
                 <div className={"row mt-4 text-center"}>
                     <div className={"col-6"}>
@@ -37,8 +55,7 @@ const DeleteItemModal = (props) => {
 
         </Modal>
     );
-};
+}
 
 
-
-export default DeleteItemModal;
+export default DeleteWarehouseModal;

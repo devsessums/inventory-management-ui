@@ -62,7 +62,6 @@ const EditItemForm = (props) => {
     const handleChange = (e) => {
         let id = e.target.id;
         let value = e.target.value.replaceAll(" ", '');
-        console.log(value)
         switch (id) {
             case "name":
                 setName(value);
@@ -124,7 +123,6 @@ const EditItemForm = (props) => {
                 break;
 
             case "amount":
-                setAmount(value);
                 if(value.length !== 0) {
                     if(parseInt(value) <= 0) {
                         setAmountErrors({
@@ -132,7 +130,7 @@ const EditItemForm = (props) => {
                             error: true
                         });
                     } else if(parseInt(value) > 0) {
-                        if(props.warehouse.size + parseInt(value) > props.warehouse.capacity) {
+                        if(props.warehouse.size - (parseInt(amount) + parseInt(value)) > props.warehouse.capacity) {
                             setAmountErrors({
                                 text: 'Exceeds capacity',
                                 error: true
@@ -154,6 +152,7 @@ const EditItemForm = (props) => {
                         error: true
                     });
                 }
+                setAmount(value);
                 break;
         }
     }
@@ -162,40 +161,19 @@ const EditItemForm = (props) => {
         e.preventDefault();
         if(valid) {
             const newItem = {
+                id: item.id,
                 name: name, description: description, price: price, amount: amount
             }
-            console.log(newItem);
-            console.log()
-            fetch(getUrl(`/warehouses/warehouse/${props.warehouse.id}/item`), {
-                headers: {'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify(newItem)
+            fetch(getUrl(`/warehouses/warehouse/${props.warehouse.id}/item/${item.id}`), {
+                headers: {'Content-Type': 'application/json'}, method: 'PUT', body: JSON.stringify(newItem)
             })
-                .then(res => {
-                    if(res.status === 202) {
-                        return res.json();
-                    } else {
-                        //throw new Error("Item add unsuccessful");
-                        return {
-                            response: {
-                                data: "Item add unsuccessful",
-                            },
-                            status: res.status
-                        };
-                    }
-
+                .then(res => res.json())
+                .then(data => {
+                    props.close()
                 })
-                .then(body => {
-                    if(body?.id) {
-                        props.push(body);
-                    } else {
-                        props.close();
-                    }
-                })
-                .catch(props.close());
-        } else {
-            console.log("form is not valid");
+                .catch(err => console.log(err));
         }
     };
-
 
     return (
         <Modal

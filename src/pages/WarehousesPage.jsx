@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {Alert, Button, CircularProgress, Divider, Grid, Paper, Snackbar, Tooltip, Typography} from "@mui/material";
-import useWarehousesData from "../hooks/useWarehousesData";
 import {getUrl} from "../tools/utils";
 import WarehousesTable from "../components/tables/WarehousesTable";
 import NewWarehouseForm from "../components/forms/NewWarehouseForm";
@@ -10,8 +9,6 @@ import {wait} from "@testing-library/user-event/dist/utils";
 
 const WarehousesPage = () => {
 
-    //let {data, error, loaded} = useWarehousesData(getUrl("/warehouses"));
-
     const [warehouses, setWarehouses] = useState(null);
     const [error, setError] = useState(null);
     const [loaded, setLoaded] = useState(false);
@@ -20,8 +17,19 @@ const WarehousesPage = () => {
     const [snack, setSnack] = useState(false);
     const [snackMessage, setSnackMessage] = useState(null);
     const [severity, setSeverity] = useState("success")
+
+    // bool for new warehouse form
     const [isAddWarehouse, setIsAddWarehouse] = useState(false);
+
+    // warehouse to be added after isAddWarehouse is true
+    const [newWarehouse, setNewWarehouse] = useState(null);
+    const handleNewWarehouse = (warehouse) => setNewWarehouse(warehouse);
+
     const [isDeleteWarehouse, setIsDeleteWarehouse] = useState(false);
+    const [warehouseIndex, setWarehouseIndex] = useState(null);
+
+    const [isEdited, setIsEdited] = useState(null);
+
 
     const handleAddTrue = () => setIsAddWarehouse(true);
     const handleAddFalse = () => setIsAddWarehouse(false);
@@ -29,24 +37,28 @@ const WarehousesPage = () => {
     const handleDeleteTrue = () => setIsDeleteWarehouse(true);
     const handleDeleteFalse = () => setIsDeleteWarehouse(false);
 
+    const handleEditedTrue = () => setIsEdited(true);
+    const handleEditedFalse = () => setIsEdited(false);
+
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
     const handleSnackOpen = () => setSnack(true);
     const handleSnackClose = () => setSnack(false)
 
-    const handleSnackMessage = (message) => {
-        if (message?.status >= 400 && message?.status < 600) {
+
+    const handleSnackMessage = (response) => {
+        if (response?.status >= 400 && response?.status < 600) {
             setSeverity("error");
         } else {
             setSeverity("success");
         }
-        console.log(message)
-        setSnackMessage(message.response.data);
     };
 
+
+
+    // initial load of data
     useEffect(() => {
-        //setLoaded(false);
         (async () => {
             await wait(2000);
             fetch(getUrl("/warehouses"), {
@@ -65,7 +77,26 @@ const WarehousesPage = () => {
                 .catch(err => setError(err))
 
         })()
-    }, [isAddWarehouse, isDeleteWarehouse]);
+    }, []);
+
+
+    // useEffect for adding/deleting to warehouses
+
+    useEffect(() => {
+        if(isAddWarehouse) {
+            console.log("adding warehouse");
+            setWarehouses([...warehouses, newWarehouse])
+            setIsAddWarehouse(false);
+        } else if(isDeleteWarehouse) {
+            console.log("deleting warehouse");
+            warehouses.splice(warehouseIndex, 1);
+            setWarehouses(warehouses);
+            setIsDeleteWarehouse(false);
+        } else if(isEdited) {
+            console.log("editing warehouse")
+        }
+
+    }, [isAddWarehouse, isDeleteWarehouse, isEdited])
 
 
     return (
@@ -78,7 +109,6 @@ const WarehousesPage = () => {
                 </Alert>
             </Snackbar>
             <div className={"container-lg mt-4"}>
-                {/*<Paper elevation={5}>*/}
                 <div className={"row justify-content-between"}>
                     <div className={"col-6"}>
                         <Typography variant={"h3"}>
@@ -104,12 +134,10 @@ const WarehousesPage = () => {
                                           handleSnackMessage={handleSnackMessage}
                                           handleSnackOpen={handleSnackOpen}
                                           added={handleAddTrue}
+                                          addWarehouse={handleNewWarehouse}
                         />
-
                     </div>
-
                 </div>
-                {/*</Paper>*/}
             </div>
             <Divider sx={{backgroundColor: "black"}}/>
             <Grid container>
@@ -120,7 +148,10 @@ const WarehousesPage = () => {
                                 warehouses={warehouses}
                                 added={isAddWarehouse}
                                 handleDeleted={handleDeleteTrue}
-                                deleted={isDeleteWarehouse}
+                                handleDeleteIndex={setWarehouseIndex}
+                                deleted={setIsDeleteWarehouse}
+                                handleEditedTrue={handleEditedTrue}
+
                             />
                         </Paper>
                     </div> : <div className={"text-center mt-5"}>

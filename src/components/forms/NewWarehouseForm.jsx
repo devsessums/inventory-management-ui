@@ -7,14 +7,6 @@ import axios from "axios";
 
 
 const NewWarehouseForm = (props) => {
-    const [errors, setErrors] = useState({
-        name: {text: '', error: false},
-        capacity: {text: '', error: false},
-        address: {text: '', error: false},
-        city: {text: '', error: false},
-        state: {text: '', error: false},
-        zipcode: {text: '', error: false}
-    });
 
     const [nameErrors, setNameErrors] = useState({text: '', error: true})
     const [capacityErrors, setCapacityErrors] = useState({text: '', error: true})
@@ -31,6 +23,7 @@ const NewWarehouseForm = (props) => {
     const [city, setCity] = useState('');
     const [state, setState] = useState('');
     const [zipcode, setZipcode] = useState('');
+    const [response, setResponse] = useState(null);
 
     const [addedWarehouse, setAddedWarehouse] = useState(null);
 
@@ -77,9 +70,13 @@ const NewWarehouseForm = (props) => {
                         text: "Must enter a number", error: true
                     });
                 } else {
-                    if (parseInt(value) >= 20) {
+                    if (parseInt(value) >= 20 && parseInt(value) <= 2147483647) {
                         setCapacityErrors({
                             text: "", error: false
+                        });
+                    } else if(parseInt(value) > 2147483647) {
+                        setCapacityErrors({
+                            text: "Must enter a number less than 2147483647", error: true
                         });
                     } else if (parseInt(value) < 20) {
                         setCapacityErrors({
@@ -135,7 +132,7 @@ const NewWarehouseForm = (props) => {
 
             case "zipcode":
                 setZipcode(value);
-                if (value.length === 5) {
+                if (value.length === 5 && parseInt(value) <= 99999 && parseInt(value) > 0) {
                     setZipcodeErrors({
                         text: "", error: false
                     });
@@ -181,60 +178,22 @@ const NewWarehouseForm = (props) => {
                 headers: {
                     "Content-Type": "application/json"
                 }, method: "POST", body: JSON.stringify(payload)
+            }).then(res =>{
+                console.log(res)
+                setResponse(res);
+                return res.json();
+            }).then(data => {
+                props.added();
+                props.addWarehouse(data);
+                props.handleSnackMessage(response);
+                props.handleSnackOpen();
+                props.handleClose();
+            }).catch(err => {
+                console.error(err);
+                props.handleSnackMessage(err);
+                props.handleSnackOpen();
+                props.handleClose();
             })
-                .then(res => {
-                        console.log(res);
-                    if (res.status === 201) {
-
-                        props.handleSnackMessage({
-                            response: {
-                                data: "Warehouse added"
-                            },
-                            status: 201
-                        });
-                        props.handleClose();
-                        //return res.json();
-                    } else if (res.status === 406) {
-                        console.log("here foo")
-                        props.handleSnackMessage({
-                            response: {
-                                data: res.body
-                            },
-                            status: 406
-                        });
-                    }
-                    else {
-                        console.log("nah I'm here")
-                        props.handleSnackMessage({
-                            response: {
-                                data: `HTTP status ${res.status}`
-                            }
-                        });
-                    }
-                    //props.handleSnackOpen(true);
-
-                })
-                .then(data => {
-                    console.log(data);
-                    setAddedWarehouse(data)
-                    props.added()
-                })
-                .catch(err => {
-                    console.log(err)
-                    props.handleSnackMessage({
-                        response: {
-                            data: ""
-                        }
-                    });
-                    props.handleSnackOpen(true);
-                });
-        } else {
-            props.handleSnackMessage({
-                response: {
-                    data: "Form not valid or filled out completely"
-                }, status: 400
-            });
-            props.handleSnackOpen(true);
         }
     };
 

@@ -21,9 +21,11 @@ const NewItemForm = (props) => {
     // if new item form is valid, by default form is not submittable
     const [valid, setValid] = useState(false);
 
+    // response from fetch
+    const [response, setResponse] = useState(null);
+
     // handles form validation from item properties
     useEffect(() => {
-        console.log("here")
         if(!nameErrors.error && !descriptionErrors.error && !priceErrors.error && !amountErrors.error) {
             setValid(true);
         } else {
@@ -65,38 +67,32 @@ const NewItemForm = (props) => {
             console.log()
             fetch(getUrl(`/warehouses/warehouse/${props.warehouse.id}/item`), {
                 headers: {'Content-Type': 'application/json'}, method: 'POST', body: JSON.stringify(newItem)
+            }).then(res => {
+                console.log(res);
+                setResponse(res);
+                return res.json();
+            }).then(data => {
+                console.log("here1");
+                props.added();
+                props.addItem(data);
+                props.setNewItem(data);
+                props.handleSnackMessage(response);
+                props.handleSnackOpen();
+                props.handleClose();
+            }).catch(err => {
+                console.error(err);
+                props.handleSnackMessage(err);
+                props.handleSnackOpen();
+                props.handleClose();
             })
-                .then(res => {
-                    if(res.status === 202) {
-                        return res.json();
-                    } else {
-                        //throw new Error("Item add unsuccessful");
-                        return {
-                            response: {
-                                data: "Item add unsuccessful",
-                            },
-                            status: res.status
-                        };
-                    }
-
-                })
-                .then(body => {
-                    if(body?.id) {
-                        props.push(body);
-                    } else {
-                        props.handleClose();
-                    }
-                })
-                .catch(props.handleClose());
-        } else {
-            console.log("form is not valid");
         }
+        console.log("out of cubmit")
     };
 
     const handleChange = (e) => {
         let id = e.target.id;
-        let value = e.target.value.replaceAll(" ", '');
-        console.log(value)
+        //let value = e.target.value.replaceAll(" ", '');
+        let value = e.target.value
         switch (id) {
             case "name":
                 setName(value);

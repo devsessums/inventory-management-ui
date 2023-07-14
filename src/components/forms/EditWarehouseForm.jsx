@@ -25,6 +25,7 @@ const EditWarehouseForm = (props) => {
     const [state, setState] = useState(warehouse.state);
     const [zipcode, setZipcode] = useState(warehouse.zipcode);
 
+    console.log(warehouse);
     const style = {
         position: 'absolute',
         top: '50%',
@@ -44,8 +45,10 @@ const EditWarehouseForm = (props) => {
         }
     }, [companyName, capacity, address, city, state, zipcode])
 
+    // handles form changes
     const handleChange = (e) => {
         switch (e.target.id) {
+
             case "name":
                 setCompanyName(e.target.value);
                 if (e.target.value.length === 0) {
@@ -67,9 +70,15 @@ const EditWarehouseForm = (props) => {
                     });
                 } else {
                     if (parseInt(e.target.value) >= 20) {
-                        setCapacityErrors({
-                            text: "", error: false
-                        });
+                        if(e.target.value < warehouse.size) {
+                            setCapacityErrors({
+                                text: "Capacity less than size", error: true
+                            });
+                        } else {
+                            setCapacityErrors({
+                                text: "", error: false
+                            });
+                        }
                     } else if (parseInt(e.target.value) < 20) {
                         setCapacityErrors({
                             text: "Must enter a number greater than 20", error: true
@@ -163,6 +172,7 @@ const EditWarehouseForm = (props) => {
             const newPayload = {
                 'id': warehouse.id,
                 'companyName': companyName,
+                'size': warehouse.size,
                 'capacity': capacity,
                 'address': address,
                 'city': city,
@@ -177,10 +187,9 @@ const EditWarehouseForm = (props) => {
                 }, method: "PUT", body: JSON.stringify(newPayload)
             })
                 .then(res => {
-                    console.log("res: ", res);
                     return res.json()
                 })
-                .then(body => {
+                .then(data => {
                     props.handleSnackMessage({
                         response: {
                             data: "Successfully Updated"
@@ -188,27 +197,13 @@ const EditWarehouseForm = (props) => {
                         status: 204
                     });
                     props.handleSnackOpen(true);
-                    props.handleUpdate(body);
+                    props.handleUpdate(data);
                     props.handleClose()
                 })
                 .catch(err => {
                     console.log(err)
-                    props.handleSnackMessage({
-                        response: {
-                            data: "Not Updated"
-                        },
-                        status: 400
-                    });
                     props.handleSnackOpen(true);
                 });
-        } else {
-            props.handleSnackMessage({
-                response: {
-                    data: "Form not Valid or not completed"
-                },
-                status: 400
-            });
-            props.handleSnackOpen(true);
         }
     };
 

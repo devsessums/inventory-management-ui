@@ -8,33 +8,39 @@ import {useState, useEffect} from "react";
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 import DeleteItemModal from "../modals/DeleteItemModal";
 import EditItemForm from "../forms/EditItemForm";
+import {useNavigate} from "react-router-dom";
 
 const ItemsTable = (props) => {
-    const {data, error, loaded} = useGetWarehouseItems(getUrl(`/warehouses/warehouse/${props.warehouse.id}/items`));
+    const navigate = useNavigate();
+    const [loaded, setLoaded] = useState(false);
     const [items, setItems] = useState([])
 
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const handleDeleteModalOpen = () => setDeleteModalOpen(true);
-    const handleDeleteModalClose = () => setDeleteModalOpen(false);
+    const [deleted, setDeleted] = useState(false);
+    const [isAdded, setIsAdded] = useState(props.isAdded);
+
+    const [editItem, setEditItem] = useState(null);
+
+    const handleItemUpdate = (item) => {
+
+    }
 
     const [editModalOpen, setEditModalOpen] = useState(false);
     const handleEditModalOpen = () => setEditModalOpen(true);
     const handleEditModalClose = () => setEditModalOpen(false);
 
     useEffect(() => {
-        if (data) {
-            setItems(data);
-        }
-    }, [data, items])
+        setItems(props.warehouse.items);
+        setLoaded(true);
+    }, [])
 
-    const handleDelete = (obj) => {
-        let index = 0;
-        for(let i in data) {
-            if(i.id === obj.id) {
-                index = i;
-            }
+    useEffect(() => {
+        if(isAdded) {
+            setItems(props.warehouse.items);
+            props.setWarehouse({...props.warehouse, items: items})
         }
+    }, [isAdded])
 
+    const handleDelete = (obj, index) => {
         fetch(getUrl(`/warehouses/warehouse/${props.warehouse.id}/item/${obj.id}`),
             {
                 method: 'DELETE',
@@ -43,11 +49,14 @@ const ItemsTable = (props) => {
                 }
             }
         )
-            .then(res => console.log(res))
+            .then(res => {
+                items.splice(index, 1)
+                setItems([...items]);
+                props.setWarehouse({...props.warehouse, size: props.warehouse.size-obj.amount, items: items});
+                navigate(`/warehouse`, {state: {warehouse: props.warehouse}});;
+            })
             .catch(err => console.log(err));
 
-        setItems(items.splice(index, 1));
-        console.log(items);
     }
 
     return (<>
@@ -82,17 +91,16 @@ const ItemsTable = (props) => {
 
                             <Tooltip title={"Click to delete"} arrow>
                                 <TableCell key={`delete${i}`} align={"center"}>
-                                    <IconButton onClick={handleDeleteModalOpen}><DeleteForeverOutlinedIcon></DeleteForeverOutlinedIcon></IconButton>
+                                    <IconButton onClick={() => {handleDelete(obj, i)}}><DeleteForeverOutlinedIcon></DeleteForeverOutlinedIcon></IconButton>
                                 </TableCell>
                             </Tooltip>
                             <EditItemForm
                                 open={editModalOpen}
                                 close={handleEditModalClose}
                                 warehouse={props.warehouse}
+                                handleUpdate={() => {handleItemUpdate(obj)}}
                                 item={obj}
                             />
-                            <DeleteItemModal open={deleteModalOpen} cancel={handleDeleteModalClose}/>
-
                         </TableRow>
 
                     })}
