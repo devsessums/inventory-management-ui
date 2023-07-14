@@ -1,5 +1,6 @@
 import {createSlice} from "@reduxjs/toolkit";
 
+// wanted to use for project but it was too late
 const warehouseSlice = createSlice(
     {
         name: 'warehouse',

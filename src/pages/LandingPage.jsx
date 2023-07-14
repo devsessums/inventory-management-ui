@@ -3,7 +3,7 @@ import {Typography} from "@mui/material";
 import {useState} from "react";
 import Carousel from "../components/molecules/Carousel";
 
-
+// Just a bland landing page with no actual use for the project
 const LandingPage = () => {
     const [user, setUser] = useState({name: "default user"});
 

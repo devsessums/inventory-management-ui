@@ -2,6 +2,7 @@ import axios from "axios";
 //import {wait} from "@testing-library/user-event/dist/utils";
 import {useEffect, useState} from "react";
 
+// hooks never actually used
 function usePostWarehousesData(url, warehouse) {
     const [data, setData] = useState(null);
     const [error, setError] = useState("");

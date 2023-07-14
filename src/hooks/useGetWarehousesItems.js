@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import axios from "axios";
 import {wait} from "@testing-library/user-event/dist/utils";
 
+// hooks never actually used
 function useGetWarehouseItems(url) {
     const [data, setData] = useState(null);
     const [error, setError] = useState("");

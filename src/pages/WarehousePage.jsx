@@ -9,28 +9,40 @@ import EditIcon from '@mui/icons-material/Edit';
 import EditWarehouseForm from "../components/forms/EditWarehouseForm";
 import {getUrl} from "../tools/utils";
 
+// Page to hold all warehouses
 const WarehousePage = () => {
+
+    // this actually messed me up, and I will use Redux & RTK next time
     const navigate = useNavigate();
+
+    // modal states for edit of warehouse
     const [open, setOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
+
+    // snackbar states
     const [snack, setSnack] = useState(false);
     const [snackMessage, setSnackMessage] = useState(null);
     const [severity, setSeverity] = useState("success")
 
-    const [updated, setUpdated] = useState(false);
-
+    // setting the state of edit modals
     const handleEditOpen = () => setEditOpen(true);
     const handleEditClose = () => setEditOpen(false);
 
+    // setting the state of warehouse modal
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
+    // setting the state of snack bar
     const handleSnackOpen = () => setSnack(true);
     const handleSnackClose = () => setSnack(false)
 
-
+    // getting warehouse after navigating to this page
     const {state} = useLocation();
+
+    // setting warehouse page properties
     const [warehouse, setWarehouse] = useState(state.warehouse)
+
+
     const handleEditTrue = state.handleEditedTrue
 
     const [isAddItem, setIsAddItem] = useState(false);
@@ -49,17 +61,15 @@ const WarehousePage = () => {
 
     const handleNewItem = (item) => {setNewItem(item)};
 
-
+    // adding item and setting warehouse state
     const handleAdd = (item) => {
-        console.log("item to add", item)
         setItems([...items, newItem]);
         setWarehouse({...warehouse, size: warehouse.size + items.length, items: items});
-        //props.setWarehouse({...warehouse})
         handleUpdate(warehouse);
     }
 
+    // upon rerender from warehouse updates, the state would remain the same unless it was set again
     const handleUpdate = (w) => {
-        console.log(w);
         navigate(`/warehouse`, {state: {warehouse: w}});
         setWarehouse({...w});
     }
@@ -76,6 +86,7 @@ const WarehousePage = () => {
         setSnackMessage(message?.response?.data ?? "Something has happened");
     };
 
+    // getting warehouse after updates
     useEffect(() => {
         fetch(getUrl(`/warehouses/warehouse/${warehouse.id}`),
             {method: 'GET',
@@ -92,23 +103,21 @@ const WarehousePage = () => {
     }, [isAddItem, isDeleteItem])
 
 
-
+    // whether or not items had been edited/added/deleted
     useEffect(() => {
         if(isAddItem) {
-            console.log("adding items");
-            console.log("this is new item", newItem)
-            setItems([...items, newItem])
+            setItems([...items, newItem]);
             setWarehouse({...warehouse, items: items})
             setIsAddItem(false);
         } else if(isDeleteItem) {
-            console.log("deleting items")
             items.splice(itemIndex, 1);
             setItems(items);
-            setWarehouse({...warehouse, items: items})
-            console.log(warehouse)
+            setWarehouse({...warehouse, items: items});
             setIsDeleteItem(false);
         } else if(isEditItem) {
-
+            setItems([...items, editItem]);
+            setWarehouse({...warehouse, items: items})
+            setIsEditItem(false);
         }
 
     }, [isAddItem, isDeleteItem, isEditItem])

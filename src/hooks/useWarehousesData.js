@@ -3,6 +3,7 @@ import axios from "axios";
 import {wait} from "@testing-library/user-event/dist/utils";
 import {getUrl} from "../tools/utils";
 
+// hooks never actually used
 function useWarehousesData(url) {
     const [data, setData] = useState(null);
     const [error, setError] = useState("");

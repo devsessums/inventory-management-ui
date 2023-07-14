@@ -58,6 +58,7 @@ const WarehousesPage = () => {
 
 
     // initial load of data
+    // the async was to show the spinner before data had been retrieved, would not use in professional manner
     useEffect(() => {
         (async () => {
             await wait(2000);
@@ -68,7 +69,6 @@ const WarehousesPage = () => {
             })
                 .then(res => res.json())
                 .then(data => {
-                    console.log(data);
                     setLoaded(true);
                     setWarehouses(data);
                     handleAddFalse();
@@ -81,22 +81,17 @@ const WarehousesPage = () => {
 
 
     // useEffect for adding/deleting to warehouses
-
     useEffect(() => {
         if(isAddWarehouse) {
-            console.log("adding warehouse");
             setWarehouses([...warehouses, newWarehouse])
             setIsAddWarehouse(false);
         } else if(isDeleteWarehouse) {
-            console.log("deleting warehouse");
             warehouses.splice(warehouseIndex, 1);
             setWarehouses(warehouses);
             setIsDeleteWarehouse(false);
-        } else if(isEdited) {
-            console.log("editing warehouse")
         }
 
-    }, [isAddWarehouse, isDeleteWarehouse, isEdited])
+    }, [isAddWarehouse, isDeleteWarehouse])
 
 
     return (
